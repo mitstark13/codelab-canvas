@@ -1,5 +1,3 @@
-//https://github.com/christopher4lis/canvas-boilerplate Canvas Boilerplate
-
 // Initial Setup
 const canvas = document.querySelector('canvas');
 const c = canvas.getContext('2d');
@@ -16,67 +14,60 @@ const colors = [
 	'rgba(0, 0, 255, 0.5)'
 ];
 
-
-// Event Listeners
-addEventListener('resize', () => {
-	canvas.width = innerWidth;	
-	canvas.height = innerHeight;
-
-	init();
-});
-
-addEventListener('click', () => {
-	init();
-});
-
-
-// Utility Functions
-function randomIntFromRange(min,max) {
-	return Math.floor(Math.random() * (max - min + 1) + min);
-}
-
 function randomColor(colors) {
 	return colors[Math.floor(Math.random() * colors.length)];
 }
 
 
 // Objects
-function Circle(x, y, radius, xVelocity, color) {
-	this.x = x;
-	this.y = y;
+function Circle(x, y, radius, color) {
+	this.x = x * canvas.width;
+	this.y = y * canvas.height;
 	this.radius = radius;
-	this.color = color;
+	this.direction = .3;
 
 	this.update = () => {
-		this.y += 4
+		if ((this.radius > 40) || (this.radius < 3)){
+			this.direction = this.direction * -1
+		}
+		this.radius += this.direction
 		this.draw();
 	};
 
 	this.draw = () => {
 		c.beginPath();
 		c.arc(this.x, this.y, this.radius, 0, Math.PI * 2, false);
-		c.fillStyle = this.color;
-		c.stroke()
-		c.fill();
+		c.lineWidth = 10;
+		c.strokeStyle = color;
+		c.stroke();
 		c.closePath();
-	};
+	}
 }
 
-let circle;
+let points = []
+
 // Implementation
 function init() {
-	const radius = 50
-	const xPos = 100
-	const yPos = 100
-	const xVel = 15
-	circle = new Circle(xPos, yPos, radius, xVel, colors[0])
+	const radius = 20
+	const count = 15
+
+	for (let x = 0; x < count; x++) {
+		for (let y = 0; y < count; y++) {
+			const u = count <= 1 ? 0.5 : x / (count - 1)
+			const v = count <= 1 ? 0.5 : y / (count - 1)
+			points.push(new Circle(u, v, radius, randomColor(colors)))
+		}
+	}
 }
 
 // Animation Loop
 function animate() {
 	requestAnimationFrame(animate);
+	// Clearing canvas to redraw each circle
 	c.clearRect(0, 0, canvas.width, canvas.height);
-	circle.update();
+	points.forEach(object => {
+		object.update();
+	});
 }
 
 init();
