@@ -25,13 +25,18 @@ function randomColor(colors) {
     
 // Objects
 function Circle(x, y, radius, color) {
-	this.x = x * canvas.width;
-	this.y = y * canvas.height;
+	this.x = x * canvas.width + 30;
+	this.y = y * canvas.height + 30;
 	this.radius = radius;
-	this.direction = .3;
+	this.direction = .5;
 
 	this.update = () => {
+		this.radius += this.direction
 
+		if ((this.radius >= 31) || (this.radius <= 1)){
+			this.direction *= -1
+		}
+		
 		this.draw();
 	};
 
@@ -53,9 +58,11 @@ function init() {
 
 	for (let x = 0; x < count; x++) {
 		for (let y = 0; y < count; y++) {
-			const u = Math.floor(Math.random() * 100) / 100
-			const v = Math.floor(Math.random() * 100) / 100
-			let radius = 30
+			// make u and v a percentage
+			const u = count <= 1 ? 0.51 : x / (count - 1)
+			const v = count <= 1 ? 0.51 : y / (count - 1)
+			let radius = 30 * (u + v)
+			radius = radius > 30 ? 30 + (30 - radius) : radius
 			points.push(new Circle(u, v, radius, randomColor(colors)))
 		}
 	}

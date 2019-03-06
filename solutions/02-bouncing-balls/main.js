@@ -98,12 +98,13 @@ function init() {
 
 // Animation Loop
 function animate() {
-	requestAnimationFrame(animate);
 	// Clearing canvas to redraw each circle
 	c.clearRect(0, 0, canvas.width, canvas.height);
 	balls.forEach(object => {
 		object.update();
 	});
+
+	requestAnimationFrame(animate);
 }
 
 init();

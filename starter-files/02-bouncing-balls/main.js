@@ -8,7 +8,7 @@ canvas.width = innerWidth;
 canvas.height = innerHeight;
 
 
-// Variables
+// Colors to be randomly picked from
 const colors = [
 	'rgba(255, 0, 255, 0.5)',
 	'rgba(255, 255, 0, 0.5)',
@@ -16,8 +16,9 @@ const colors = [
 	'rgba(0, 0, 255, 0.5)'
 ];
 
+const numBalls = 50;
 
-// Event Listeners
+// Event Listeners: Restart on resize or click
 addEventListener('resize', () => {
 	canvas.width = innerWidth;	
 	canvas.height = innerHeight;
@@ -30,7 +31,7 @@ addEventListener('click', () => {
 });
 
 
-// Utility Functions
+// Commonly used functions
 function randomIntFromRange(min,max) {
 	return Math.floor(Math.random() * (max - min + 1) + min);
 }
@@ -46,9 +47,28 @@ function Circle(x, y, radius, xVelocity, color) {
 	this.y = y;
 	this.radius = radius;
 	this.color = color;
+	this.velocity = 25;
+	this.friction = 0.95;
+	this.xVelocity = xVelocity;
+	this.xfriction = .95
 
 	this.update = () => {
-		this.y += 4
+
+		// Ball should bounce off sides and bottom of window. Friction makes velocity less with each bounce.
+		if (this.y + this.radius >= canvas.height) {
+			this.velocity = -this.velocity * this.friction
+		}
+		if ((this.x + this.radius >= canvas.width) || (this.x - this.radius <= 0)) {
+			this.xVelocity = -this.xVelocity * this.xfriction
+		}
+
+		// Ball gradually falls faster (or slows if negative)
+		this.velocity++
+		this.y += this.velocity
+		this.x += this.xVelocity
+		if (this.y + this.radius > canvas.height) {
+			this.y = canvas.height - this.radius
+		}
 		this.draw();
 	};
 
@@ -62,21 +82,29 @@ function Circle(x, y, radius, xVelocity, color) {
 	};
 }
 
-let circle;
+
 // Implementation
+let balls = [];
 function init() {
-	const radius = 50
-	const xPos = 100
-	const yPos = 100
-	const xVel = 15
-	circle = new Circle(xPos, yPos, radius, xVel, colors[0])
+	for (let i = 0; i < numBalls; i++) {
+		const radius = 50
+		const xPos = randomIntFromRange(0 + radius, canvas.width - radius)
+		const yPos = randomIntFromRange(0 + radius, canvas.height - radius)
+		const xVel = randomIntFromRange(-3, 3)
+		let circle = new Circle(xPos, yPos, radius, xVel, randomColor(colors))
+		balls.push(circle)
+	}
 }
 
 // Animation Loop
 function animate() {
-	requestAnimationFrame(animate);
+	// Clearing canvas to redraw each circle
 	c.clearRect(0, 0, canvas.width, canvas.height);
-	circle.update();
+	balls.forEach(object => {
+		object.update();
+	});
+
+	requestAnimationFrame(animate);
 }
 
 init();
